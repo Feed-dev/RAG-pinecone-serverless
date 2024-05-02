@@ -1,3 +1,5 @@
+### sourced from https://github.com/langchain-ai/pinecone-serverless/tree/main
+
 ## Pinecone-Serverless
 
 We see demand for tools that bridge the gap between prototyping and production. With usage based pricing and support for unlimited scaling, Pinecone Serverless helps to address pain points with vectorstore productionization that we've seen from the community. This repo builds a RAG chain that connects to Pinecone Serverless index using LCEL, turns it into an a web service with LangServe, uses Hosted LangServe deploy it, and uses LangSmith to monitor the input / outputs.  
