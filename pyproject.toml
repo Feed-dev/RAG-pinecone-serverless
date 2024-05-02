@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "rag-pinecone-serverless"
+version = "0.1.0"
+description = "rag-deployment"
+authors = ["federico Lubbert <federico.lubbert@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pinecone-client = "3.0.0.dev8"
+langchain-community = "0.0.12"
+cohere = "^5.3.4"
+openai = "^1.25.0"
+jupyter = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
