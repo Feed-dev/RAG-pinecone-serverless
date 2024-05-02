@@ -1,18 +1,28 @@
 [tool.poetry]
 name = "rag-pinecone-serverless"
 version = "0.1.0"
-description = "rag-deployment"
-authors = ["federico Lubbert <federico.lubbert@gmail.com>"]
+description = ""
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+packages = [
+    { include = "app" },
+]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
+uvicorn = "^0.23.2"
+langserve = {extras = ["server"], version = ">=0.0.30"}
+pydantic = "<2"
 pinecone-client = "3.0.0.dev8"
 langchain-community = "0.0.12"
 cohere = "^5.3.4"
 openai = "^1.25.0"
 jupyter = "^1.0.0"
+python-dotenv = "^1.0.1"
 
+
+[tool.poetry.group.dev.dependencies]
+langchain-cli = ">=0.0.15"
 
 [build-system]
 requires = ["poetry-core"]
