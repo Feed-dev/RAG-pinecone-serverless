@@ -50,3 +50,11 @@ chain = (
     | model
     | StrOutputParser()
 )
+
+print(pinecone.info())  # This should return information about the Pinecone service.
+test_query = "what is Ragnarok?"
+print(fetch_documents(test_query))  # Check output format and content.
+test_response = model.invoke(prompt="Hello world")
+print(test_response)
+test_output = chain.invoke("what is Ragnarok?")
+print(test_output)  # Check if the output makes sense and integrates all components well.
