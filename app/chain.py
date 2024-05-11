@@ -11,24 +11,25 @@ load_dotenv()
 
 # Pinecone setup
 PINECONE_API_KEY = os.environ["PINECONE_API_KEY"]
-# PINECONE_ENVIRONMENT = os.environ["PINECONE_ENVIRONMENT"]
+PINECONE_INDEX_NAME = os.environ["PINECONE_INDEX_NAME"]
+PINECONE_ENVIRONMENT = os.environ["PINECONE_ENVIRONMENT"]
+
 pinecone = PineconeClient(api_key=PINECONE_API_KEY)
-index = pinecone.Index(os.environ["PINECONE_INDEX_NAME"])
 
 # Cohere Embeddings setup
 embeddings = CohereEmbeddings(model="multilingual-22-12")
 
+# Pinecone index setup
+index = pinecone.Index(PINECONE_INDEX_NAME)
+
 
 def fetch_documents(question):
-    """Retrieve documents based on the question and prepare for the RAG."""
-    # Generate the query vector for the question
+    """Fetch documents based on the question."""
     question_vector = embeddings.embed_query(question)
-
-    # Query Pinecone to find the most similar documents
-    results = index.query(question_vector, top_k=5)
-
-    # Extract the text from the results and compile it into a single context string
-    context = " ".join([doc['_source']['text'] for doc in results['matches']])
+    # Use Pinecone query method to find similar vectors/documents
+    response = index.query(vector=question_vector, top_k=5)
+    documents = [doc for doc in response['matches']]
+    context = " ".join([doc.metadata['text'] for doc in documents])
     return {"context": context, "question": question}
 
 
@@ -38,16 +39,14 @@ template = """Answer the question based only on the following context:
 Question: {question}
 """
 prompt = ChatPromptTemplate.from_template(template)
-model = ChatOpenAI(temperature=0, model="gpt-4-1106-preview")
+model = ChatOpenAI(temperature=0, model="gpt-4-turbo")
 chain = (
-        RunnableParallel({"context": RunnablePassthrough(), "question": RunnablePassthrough()})
-        | RunnableLambda(fetch_documents)
+        RunnableLambda(fetch_documents)
         | prompt
         | model
         | StrOutputParser()
 )
 
-# Test the chain with an example question
-test_question = "what is Ragnarok?"
-result = chain.invoke(test_question)
+test_input = "What is Ragnarok?"
+result = chain.invoke(test_input)
 print(result)
