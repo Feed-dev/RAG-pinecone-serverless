@@ -22,13 +22,12 @@ embeddings = CohereEmbeddings(model="multilingual-22-12")
 vectorstore = Pinecone.from_existing_index(index_name=PINECONE_INDEX_NAME,
                                            embedding=embeddings)
 
-retriever = vectorstore.as_retriever()
 
-
-def fetch_url(x):
-    # Retrieve the documents directly from the retriever's context
-    contents = [doc.page_content for doc in x['context']]
-    return {"context": contents, "question": x["question"]}
+def fetch_documents(question):
+    """Retrieve documents based on the question and prepare for the RAG."""
+    documents = vectorstore.retrieve(question)
+    context = " ".join([doc.text for doc in documents])
+    return {"context": context, "question": question}
 
 
 # RAG prompt
@@ -36,15 +35,16 @@ template = """Answer the question based only on the following context:
 {context}
 Question: {question}
 """
-prompt = ChatPromptTemplate.from_template(template)
 
-# RAG
-model = ChatOpenAI(temperature=0, model="gpt-4-1106-preview")
+
+def retriever(context, question):
+    return context
+
 
 chain = (
-        RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
-        | RunnableLambda(fetch_url)  # Add this line
-        | prompt
-        | model
-        | StrOutputParser()
+    RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
+    | RunnableLambda(fetch_documents)  # Make sure this function aligns with your data structure
+    | ChatPromptTemplate.from_template(template)
+    | ChatOpenAI(temperature=0, model="gpt-4-1106-preview")
+    | StrOutputParser()
 )
