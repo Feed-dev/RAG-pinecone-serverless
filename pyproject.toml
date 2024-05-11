@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "rag-pinecone-serverless"
 version = "0.1.0"
-description = ""
+description = "A serverless application using RAG with Pinecone for vector storage."
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [
@@ -13,13 +13,14 @@ python = ">=3.11,<3.13"
 uvicorn = "^0.23.2"
 langserve = {extras = ["server"], version = ">=0.0.30"}
 pydantic = "<2"
-pinecone-client = "3.0.0.dev8"
-langchain-community = "0.0.12"
-cohere = "^5.3.4"
-openai = "^1.25.0"
+pinecone-client = "3.0.0"
+cohere = "^5.3"
+openai = "^1.6.1"
+python-dotenv = "^1.0.0"
+langchain-community = ">=0.0.13,<0.1"
 jupyter = "^1.0.0"
-python-dotenv = "^1.0.1"
-
+langchain-cohere = "^0.1.4"
+langchain-openai = "^0.1.6"
 
 [tool.poetry.group.dev.dependencies]
 langchain-cli = ">=0.0.15"
