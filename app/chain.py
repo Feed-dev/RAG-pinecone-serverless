@@ -21,6 +21,7 @@ pinecone = PineconeClient(api_key=PINECONE_API_KEY,
 embeddings = CohereEmbeddings(model="multilingual-22-12")
 vectorstore = Pinecone.from_existing_index(index_name=PINECONE_INDEX_NAME,
                                            embedding=embeddings)
+retriever = vectorstore.as_retriever()
 
 
 def fetch_documents(question):
@@ -35,16 +36,17 @@ template = """Answer the question based only on the following context:
 {context}
 Question: {question}
 """
+prompt = ChatPromptTemplate.from_template(template)
 
-
-def retriever(context, question):
-    return context
+# RAG
+model = ChatOpenAI(temperature=0,
+                   model="gpt-4-1106-preview")
 
 
 chain = (
     RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
     | RunnableLambda(fetch_documents)  # Make sure this function aligns with your data structure
-    | ChatPromptTemplate.from_template(template)
-    | ChatOpenAI(temperature=0, model="gpt-4-1106-preview")
+    | prompt
+    | model
     | StrOutputParser()
 )
