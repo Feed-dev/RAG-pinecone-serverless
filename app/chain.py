@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
-from langchain_community.chat_models import ChatOpenAI
-from langchain_community.embeddings import CohereEmbeddings
+# from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
+# from langchain_community.embeddings import CohereEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_community.vectorstores import Pinecone
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -51,10 +53,6 @@ chain = (
     | StrOutputParser()
 )
 
-print(pinecone.info())  # This should return information about the Pinecone service.
-test_query = "what is Ragnarok?"
-print(fetch_documents(test_query))  # Check output format and content.
-test_response = model.invoke(prompt="Hello world")
-print(test_response)
+# Test the chain
 test_output = chain.invoke("what is Ragnarok?")
 print(test_output)  # Check if the output makes sense and integrates all components well.
