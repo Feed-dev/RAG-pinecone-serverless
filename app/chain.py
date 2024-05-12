@@ -2,10 +2,12 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_cohere import CohereEmbeddings
+from langchain_community.vectorstores import Pinecone
 from pinecone import Pinecone as PineconeClient
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
+from langchain_pinecone import PineconeVectorStore
 
 load_dotenv()
 
@@ -16,37 +18,42 @@ PINECONE_ENVIRONMENT = os.environ["PINECONE_ENVIRONMENT"]
 
 pinecone = PineconeClient(api_key=PINECONE_API_KEY)
 
+# Openai setup
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
+
 # Cohere Embeddings setup
-embeddings = CohereEmbeddings(model="multilingual-22-12")
+embeddings = CohereEmbeddings(model="embed-multilingual-v3.0")
 
 # Pinecone index setup
-index = pinecone.Index(PINECONE_INDEX_NAME)
+vectorstore = Pinecone.from_existing_index(index_name=PINECONE_INDEX_NAME, embedding=embeddings)
+retriever = vectorstore.as_retriever()
 
 
-def fetch_documents(question):
-    """Fetch documents based on the question."""
-    question_vector = embeddings.embed_query(question)
-    # Use Pinecone query method to find similar vectors/documents
-    response = index.query(vector=question_vector, top_k=5)
-    documents = [doc for doc in response['matches']]
-    context = " ".join([doc.metadata['text'] for doc in documents])
-    return {"context": context, "question": question}
-
-
-# RAG components setup
+# RAG prompt
 template = """Answer the question based only on the following context:
 {context}
 Question: {question}
 """
 prompt = ChatPromptTemplate.from_template(template)
-model = ChatOpenAI(temperature=0, model="gpt-4-turbo")
+
+# RAG
+model = ChatOpenAI(temperature=0,
+                   model="gpt-3.5-turbo",
+                   api_key=OPENAI_API_KEY,
+                   max_tokens=1000
+                   )
+
+
+# Post-processing
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+
 chain = (
-        RunnableLambda(fetch_documents)
-        | prompt
-        | model
-        | StrOutputParser()
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | model
+    | StrOutputParser()
 )
 
-test_input = "What is Ragnarok?"
-result = chain.invoke(test_input)
-print(result)
+chain.invoke("what is ragnarok?")
