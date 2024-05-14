@@ -42,9 +42,11 @@ model = ChatOpenAI(temperature=0,
                    max_tokens=1000
                    )
 
+
 # Post-processing
 def format_docs(docs):
     return "\n\n".join(f"File: {doc.metadata['file']} - Page: {doc.metadata['page']} - Chunk: {doc.metadata['chunk']}\n{doc.page_content}" for doc in docs)
+
 
 chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}
@@ -53,9 +55,11 @@ chain = (
     | StrOutputParser()
 )
 
+
 def test_rag_chain(query):
     response = chain.invoke(query)
     print("Response:\n", response)
+
 
 if __name__ == "__main__":
     test_query = "What is the significance of rune magic?"
