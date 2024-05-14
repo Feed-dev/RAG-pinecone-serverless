@@ -62,5 +62,5 @@ def test_rag_chain(query):
 
 
 if __name__ == "__main__":
-    test_query = "How does one go to Valhalla?"
+    test_query = "What is the meaning of the runes?"
     test_rag_chain(test_query)
