@@ -28,7 +28,6 @@ embeddings = CohereEmbeddings(model="embed-multilingual-v3.0")
 vectorstore = Pinecone.from_existing_index(index_name=PINECONE_INDEX_NAME, embedding=embeddings)
 retriever = vectorstore.as_retriever()
 
-
 # RAG prompt
 template = """Answer the question based only on the following context:
 {context}
@@ -43,11 +42,9 @@ model = ChatOpenAI(temperature=0,
                    max_tokens=1000
                    )
 
-
 # Post-processing
 def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
+    return "\n\n".join(f"File: {doc.metadata['file']} - Page: {doc.metadata['page']} - Chunk: {doc.metadata['chunk']}\n{doc.page_content}" for doc in docs)
 
 chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}
@@ -56,4 +53,10 @@ chain = (
     | StrOutputParser()
 )
 
-chain.invoke("what is ragnarok?")
+def test_rag_chain(query):
+    response = chain.invoke(query)
+    print("Response:\n", response)
+
+if __name__ == "__main__":
+    test_query = "What is the significance of rune magic?"
+    test_rag_chain(test_query)
