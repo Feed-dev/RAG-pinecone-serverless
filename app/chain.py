@@ -57,6 +57,7 @@ chain = (
 )
 
 
+# Run the chain with tracing enabled
 def run_chain(query):
     with tracing_v2_enabled(project_name="LangServe Walkthrough"):
         response = chain.invoke(query)
