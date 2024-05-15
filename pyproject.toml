@@ -14,7 +14,7 @@ uvicorn = "^0.23.2"
 langserve = {extras = ["server"], version = ">=0.0.30"}
 pydantic = "<2"
 pinecone-client = "3.2.2"
-cohere = "^5.3"
+cohere = "5.3.0"
 openai = "^1.6.1"
 python-dotenv = "^1.0.0"
 langchain-community = ">=0.0.13,<0.1"
