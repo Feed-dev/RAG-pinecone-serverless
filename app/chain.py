@@ -8,6 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from langchain_pinecone import PineconeVectorStore
+from langchain_core.tracers.context import tracing_v2_enabled
 
 load_dotenv()
 
@@ -56,11 +57,12 @@ chain = (
 )
 
 
-def test_rag_chain(query):
-    response = chain.invoke(query)
-    print("Response:\n", response)
+def run_chain(query):
+    with tracing_v2_enabled(project_name="LangServe Walkthrough"):
+        response = chain.invoke(query)
+        print("Response:\n", response)
 
 
 if __name__ == "__main__":
     test_query = "What is nordic soul lore?"
-    test_rag_chain(test_query)
+    run_chain(test_query)
