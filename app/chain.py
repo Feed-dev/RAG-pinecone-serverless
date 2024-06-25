@@ -65,5 +65,5 @@ def run_chain(query):
 
 
 if __name__ == "__main__":
-    test_query = "What is nordic soul lore?"
+    test_query = "What is Mantak Chia dark room meditation?"
     run_chain(test_query)
